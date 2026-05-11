@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Chased Below</title>
+    <link rel="stylesheet" href="/src/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <div id="game-container">
+      <canvas id="webgl-canvas"></canvas>
+      
+      <div id="ui-layer">
+        <!-- Start Menu -->
+        <div id="start-menu" class="ui-screen">
+          <h1 class="game-title">CHASED BELOW</h1>
+          <p class="subtitle">Swim fast. Don't look back.</p>
+          <button id="start-btn" class="glow-btn">PLAY</button>
+        </div>
+
+        <!-- HUD -->
+        <div id="hud" class="hidden">
+          <div class="hud-top">
+            <div class="score-container">Distance: <span id="distance-val">0</span>m</div>
+            <div class="coins-container">Coins: <span id="coins-val">0</span></div>
+          </div>
+        </div>
+
+        <!-- Game Over Menu -->
+        <div id="game-over-menu" class="ui-screen hidden">
+          <h1 class="game-over-title">CAUGHT!</h1>
+          <p class="final-score">Distance: <span id="final-distance">0</span>m</p>
+          <button id="restart-btn" class="glow-btn">TRY AGAIN</button>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
