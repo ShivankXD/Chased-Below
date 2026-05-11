@@ -26,7 +26,7 @@ export class Player {
         });
         
         this.fishSprite = new THREE.Sprite(material);
-        this.fishSprite.scale.set(4, 4, 1); // Adjust size
+        this.fishSprite.scale.set(1.5, 1.5, 1); // Much smaller size so it doesn't block camera
         this.mesh.add(this.fishSprite);
 
         this.mesh.position.y = 0;

@@ -5,37 +5,30 @@ import { GameAssets } from './main';
 export class CoinManager {
     private scene: THREE.Scene;
     private player: Player;
-    private coins: { mesh: THREE.Sprite }[] = [];
+    private coins: { mesh: THREE.Sprite, baseY: number }[] = [];
     
     private spawnZ: number = -50;
     
     public coinsCollected: number = 0;
 
-    private coinMaterial: THREE.SpriteMaterial;
-
     constructor(scene: THREE.Scene, player: Player) {
         this.scene = scene;
         this.player = player;
-
-        this.coinMaterial = new THREE.SpriteMaterial({
-            map: GameAssets.coin,
-            color: 0xffffff
-        });
     }
 
-    public update(delta: number) {
+    public update(_delta: number) {
         // Spawn coins
         if (this.player.mesh.position.z - 150 < this.spawnZ) {
             this.spawnCoinPattern(this.spawnZ);
-            this.spawnZ -= 60; // Distance between patterns
+            this.spawnZ -= 60;
         }
 
-        // Update existing coins (rotation and collision)
+        // Update existing coins
         for (let i = this.coins.length - 1; i >= 0; i--) {
             const coin = this.coins[i];
             
-            // Simple bobbing instead of 3D rotation for sprite
-            coin.mesh.position.y += Math.sin(Date.now() * 0.01 + coin.mesh.position.z) * 0.05;
+            // Bobbing around base position (not drifting)
+            coin.mesh.position.y = coin.baseY + Math.sin(Date.now() * 0.005 + coin.mesh.position.z) * 0.3;
 
             // Collision check
             const dz = Math.abs(coin.mesh.position.z - this.player.mesh.position.z);
@@ -43,7 +36,6 @@ export class CoinManager {
             const dy = Math.abs(coin.mesh.position.y - this.player.mesh.position.y);
 
             if (dz < 1.5 && dx < 1.5 && dy < 1.5) {
-                // Collected
                 this.coinsCollected++;
                 this.scene.remove(coin.mesh);
                 this.coins.splice(i, 1);
@@ -59,18 +51,21 @@ export class CoinManager {
     }
 
     private spawnCoinPattern(zPos: number) {
-        // Random X and Y
-        const x = (Math.random() - 0.5) * 20;
-        const y = (Math.random() - 0.5) * 20;
+        const x = (Math.random() - 0.5) * 16;
+        const y = (Math.random() - 0.5) * 16;
         
-        // Spawn a line of 5 coins
         for (let i = 0; i < 5; i++) {
-            const mesh = new THREE.Sprite(this.coinMaterial);
-            mesh.scale.set(2, 2, 1);
-            mesh.position.set(x, y, zPos - (i * 3)); // spaced by 3 units
+            const material = new THREE.SpriteMaterial({
+                map: GameAssets.coin,
+                color: 0xffffff
+            });
+            const mesh = new THREE.Sprite(material);
+            mesh.scale.set(2.5, 2.5, 1);
+            const coinY = y + i * 0.5;
+            mesh.position.set(x, coinY, zPos - (i * 3));
             
             this.scene.add(mesh);
-            this.coins.push({ mesh });
+            this.coins.push({ mesh, baseY: coinY });
         }
     }
 

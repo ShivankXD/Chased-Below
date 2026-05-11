@@ -26,6 +26,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         tunnelTex.wrapT = THREE.RepeatWrapping;
         tunnelTex.repeat.set(2, 5); // adjust based on cylinder
         GameAssets.tunnel = tunnelTex;
+
+        const aquariumTex = await AssetLoader.loadNormalTexture('/assets/aquarium.png');
+        aquariumTex.wrapS = THREE.RepeatWrapping;
+        aquariumTex.wrapT = THREE.RepeatWrapping;
+        aquariumTex.repeat.set(2, 5);
+        GameAssets.aquarium = aquariumTex;
     } catch(e) {
         console.error("Failed to load assets", e);
     }

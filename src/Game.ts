@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { EffectComposer, RenderPass, BloomEffect, EffectPass } from 'postprocessing';
+import { EffectComposer, RenderPass } from 'postprocessing';
 import { Player } from './Player';
 import { CameraManager } from './CameraManager';
 import { Environment } from './Environment';
@@ -24,40 +24,38 @@ export class Game {
     private cutsceneManager: CutsceneManager;
     
     private isRunning: boolean = false;
-    private distanceVal: HTMLElement;
-    private coinsVal: HTMLElement;
+    private distanceVal: HTMLElement | null;
+    private coinsVal: HTMLElement | null;
 
     constructor(canvas: HTMLCanvasElement) {
         this.canvas = canvas;
-        this.distanceVal = document.getElementById('distance-val') as HTMLElement;
-        this.coinsVal = document.getElementById('coins-val') as HTMLElement;
+        this.distanceVal = document.getElementById('distance-val');
+        this.coinsVal = document.getElementById('coins-val');
         
-        // Init Renderer
+        // Renderer
         this.renderer = new THREE.WebGLRenderer({
             canvas: this.canvas,
-            antialias: false, // Disabled because we use postprocessing
+            antialias: true,
             powerPreference: "high-performance"
         });
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         
-        // Init Scene
+        // Scene — bright cartoon underwater
         this.scene = new THREE.Scene();
-        const waterColor = 0x0077be; // Deep ocean blue
+        const waterColor = 0x1199dd;
         this.scene.background = new THREE.Color(waterColor);
-        this.scene.fog = new THREE.FogExp2(waterColor, 0.015); // Dense water fog
+        this.scene.fog = new THREE.FogExp2(waterColor, 0.004); // very light fog so outer water is visible
 
-        // Lighting
-        const ambientLight = new THREE.AmbientLight(0x404040, 1.5); // Soft ambient
+        // Lighting — bright and cheerful
+        const ambientLight = new THREE.AmbientLight(0xaaddff, 2.5);
         this.scene.add(ambientLight);
 
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5); // Sunlight
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 2);
         directionalLight.position.set(0, 50, 20);
-        directionalLight.castShadow = true;
         this.scene.add(directionalLight);
         
-        // Add a blue light from below to simulate scattered water light
-        const hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x002244, 0.8);
+        const hemisphereLight = new THREE.HemisphereLight(0xccffff, 0x004488, 1.2);
         this.scene.add(hemisphereLight);
 
         // Entities
@@ -72,14 +70,14 @@ export class Game {
         this.coinManager = new CoinManager(this.scene, this.player);
         this.cutsceneManager = new CutsceneManager(this.player);
 
-        // Postprocessing - disabled heavy bloom for realistic cartoon style
+        // Postprocessing (just render pass, no bloom)
         this.composer = new EffectComposer(this.renderer);
         const renderPass = new RenderPass(this.scene, this.cameraManager.camera);
         this.composer.addPass(renderPass);
 
         this.clock = new THREE.Clock();
         
-        // Start render loop (idle state initially)
+        // Start render loop
         this.renderer.setAnimationLoop(this.animate.bind(this));
     }
 
@@ -94,6 +92,7 @@ export class Game {
         this.shark.reset();
         this.obstacleManager.reset();
         this.coinManager.reset();
+        this.cutsceneManager.reset();
         this.isRunning = true;
         this.clock.start();
     }
@@ -103,12 +102,13 @@ export class Game {
         this.player.die();
         document.getElementById('hud')?.classList.add('hidden');
         document.getElementById('game-over-menu')?.classList.remove('hidden');
-        (document.getElementById('final-distance') as HTMLElement).innerText = Math.floor(Math.abs(this.player.mesh.position.z)).toString();
+        const finalDist = document.getElementById('final-distance');
+        if (finalDist) finalDist.innerText = Math.floor(Math.abs(this.player.mesh.position.z)).toString();
     }
 
     private updateHUD() {
         const dist = Math.floor(Math.abs(this.player.mesh.position.z));
-        if (this.distanceVal) this.distanceVal.innerText = dist.toString();
+        if (this.distanceVal) this.distanceVal.innerText = dist.toLocaleString();
         
         const scoreVal = document.getElementById('score-val');
         if (scoreVal) scoreVal.innerText = (dist * 8).toLocaleString();
@@ -133,7 +133,7 @@ export class Game {
                 this.gameOver();
             }
         } else {
-            // Idle camera movement when not playing
+            // Idle camera sway when not playing
             this.cameraManager.camera.position.x = Math.sin(Date.now() * 0.001) * 2;
             this.cameraManager.camera.lookAt(this.player.mesh.position);
         }
