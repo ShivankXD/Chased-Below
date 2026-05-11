@@ -7,7 +7,8 @@ export class Shark {
     private player: Player;
     
     // Chase mechanics
-    private currentDistance: number = 30; // Starts 30 units behind
+    private currentDistance: number = 40; // Starts 40 units behind
+    private readonly maxDistance: number = 80; // Out of camera view
     public readonly catchDistance: number = 3;
     
     private sharkBody: THREE.Mesh;
@@ -16,31 +17,50 @@ export class Shark {
         this.player = player;
         this.mesh = new THREE.Group();
 
-        // Placeholder Shark (a large, menacing cylinder/cone hybrid)
-        const geometry = new THREE.CylinderGeometry(0.1, 2, 8, 12);
+        // Cartoon Shark Body
+        const geometry = new THREE.CylinderGeometry(0.2, 3, 10, 16);
         geometry.rotateX(-Math.PI / 2); // Point forward
         
         const material = new THREE.MeshStandardMaterial({
-            color: 0x111111,
-            roughness: 0.5,
-            metalness: 0.1,
-            emissive: 0x220000,
-            emissiveIntensity: 0.5
+            color: 0x445566, // bluish grey
+            roughness: 0.6,
+            metalness: 0.2
         });
 
         this.sharkBody = new THREE.Mesh(geometry, material);
+        
+        // Dorsal Fin
+        const dorsalGeo = new THREE.ConeGeometry(1, 2, 4);
+        const dorsal = new THREE.Mesh(dorsalGeo, material);
+        dorsal.position.set(0, 3, -1);
+        this.sharkBody.add(dorsal);
+
+        // Tail
+        const tailGeo = new THREE.ConeGeometry(1.5, 3, 4);
+        tailGeo.rotateX(-Math.PI / 2);
+        const tail = new THREE.Mesh(tailGeo, material);
+        tail.position.set(0, 0, 6);
+        this.sharkBody.add(tail);
+
         this.mesh.add(this.sharkBody);
 
-        // Add some glowing red eyes
-        const eyeGeo = new THREE.SphereGeometry(0.3, 8, 8);
-        const eyeMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+        // Add some cartoonish eyes
+        const eyeGeo = new THREE.SphereGeometry(0.5, 8, 8);
+        const eyeMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        const pupilMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
         
         const leftEye = new THREE.Mesh(eyeGeo, eyeMat);
-        leftEye.position.set(-0.8, 0.5, -3);
+        leftEye.position.set(-1.2, 1, -4);
+        const leftPupil = new THREE.Mesh(new THREE.SphereGeometry(0.2, 8, 8), pupilMat);
+        leftPupil.position.set(-0.1, 0, -0.4);
+        leftEye.add(leftPupil);
         this.mesh.add(leftEye);
 
         const rightEye = new THREE.Mesh(eyeGeo, eyeMat);
-        rightEye.position.set(0.8, 0.5, -3);
+        rightEye.position.set(1.2, 1, -4);
+        const rightPupil = new THREE.Mesh(new THREE.SphereGeometry(0.2, 8, 8), pupilMat);
+        rightPupil.position.set(0.1, 0, -0.4);
+        rightEye.add(rightPupil);
         this.mesh.add(rightEye);
 
         scene.add(this.mesh);
@@ -53,15 +73,15 @@ export class Shark {
         // If player speed is 20, shark base speed is maybe 18, but it gets bursts?
         // Actually, let's make it simpler: shark closes in if player speed drops below a threshold.
         // For now, player speed is constant 20. Let's say optimal speed is 20.
-        const optimalSpeed = 20;
+        const optimalSpeed = 30;
         
-        if (this.player.speed < optimalSpeed) {
-            // Player is slow, shark catches up
-            this.currentDistance -= (optimalSpeed - this.player.speed) * delta * 2;
+        if (this.player.speed < optimalSpeed - 2) {
+            // Player is slow, shark catches up VERY fast
+            this.currentDistance -= (optimalSpeed - this.player.speed) * delta * 1.5;
         } else {
-            // Player is fast, shark falls back slightly to base distance
-            if (this.currentDistance < 30) {
-                this.currentDistance += delta * 2;
+            // Player is fast, shark falls back
+            if (this.currentDistance < this.maxDistance) {
+                this.currentDistance += delta * 4; // slowly falls behind
             }
         }
 
@@ -85,7 +105,7 @@ export class Shark {
     }
 
     public reset() {
-        this.currentDistance = 30;
-        this.mesh.position.set(0, 1, 30);
+        this.currentDistance = 40;
+        this.mesh.position.set(0, 0, 40);
     }
 }

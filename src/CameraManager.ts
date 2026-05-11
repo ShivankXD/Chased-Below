@@ -5,9 +5,9 @@ export class CameraManager {
     public camera: THREE.PerspectiveCamera;
     private targetPlayer: Player;
     
-    // Camera settings relative to player
-    private offset = new THREE.Vector3(0, 5, 10);
-    private lookAtOffset = new THREE.Vector3(0, 0, -10);
+    // Camera follows slightly behind and above, but loosely tracks X/Y
+    private offsetZ = 12;
+    private offsetY = 4;
 
     constructor(player: Player, aspectRatio: number) {
         this.targetPlayer = player;
@@ -15,13 +15,24 @@ export class CameraManager {
     }
 
     public update(delta: number) {
-        const targetPosition = this.targetPlayer.mesh.position.clone().add(this.offset);
+        // We want the camera to stay behind the player in Z tightly, 
+        // but follow X and Y with some springiness.
         
-        // Smoothly interpolate camera position
-        this.camera.position.lerp(targetPosition, 5 * delta);
+        const targetZ = this.targetPlayer.mesh.position.z + this.offsetZ;
+        const targetX = this.targetPlayer.mesh.position.x * 0.5; // only follow half the X distance so player can move to edges of screen
+        const targetY = this.targetPlayer.mesh.position.y * 0.5 + this.offsetY;
+
+        this.camera.position.z = targetZ;
         
-        // Always look ahead of the player
-        const lookAtTarget = this.targetPlayer.mesh.position.clone().add(this.lookAtOffset);
+        this.camera.position.x += (targetX - this.camera.position.x) * delta * 5;
+        this.camera.position.y += (targetY - this.camera.position.y) * delta * 5;
+        
+        // Look ahead of the player
+        const lookAtTarget = new THREE.Vector3(
+            this.targetPlayer.mesh.position.x * 0.5,
+            this.targetPlayer.mesh.position.y * 0.5,
+            this.targetPlayer.mesh.position.z - 20
+        );
         this.camera.lookAt(lookAtTarget);
     }
 

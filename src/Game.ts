@@ -6,6 +6,7 @@ import { Environment } from './Environment';
 import { Shark } from './Shark';
 import { ObstacleManager } from './ObstacleManager';
 import { CoinManager } from './CoinManager';
+import { CutsceneManager } from './CutsceneManager';
 
 export class Game {
     private canvas: HTMLCanvasElement;
@@ -20,6 +21,7 @@ export class Game {
     private shark: Shark;
     private obstacleManager: ObstacleManager;
     private coinManager: CoinManager;
+    private cutsceneManager: CutsceneManager;
     
     private isRunning: boolean = false;
     private distanceVal: HTMLElement;
@@ -41,16 +43,22 @@ export class Game {
         
         // Init Scene
         this.scene = new THREE.Scene();
-        this.scene.background = new THREE.Color(0x010a15);
-        this.scene.fog = new THREE.FogExp2(0x010a15, 0.02);
+        const waterColor = 0x0077be; // Deep ocean blue
+        this.scene.background = new THREE.Color(waterColor);
+        this.scene.fog = new THREE.FogExp2(waterColor, 0.015); // Dense water fog
 
         // Lighting
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        const ambientLight = new THREE.AmbientLight(0x404040, 1.5); // Soft ambient
         this.scene.add(ambientLight);
 
-        const directionalLight = new THREE.DirectionalLight(0x00f3ff, 1);
-        directionalLight.position.set(10, 20, 10);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5); // Sunlight
+        directionalLight.position.set(0, 50, 20);
+        directionalLight.castShadow = true;
         this.scene.add(directionalLight);
+        
+        // Add a blue light from below to simulate scattered water light
+        const hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x002244, 0.8);
+        this.scene.add(hemisphereLight);
 
         // Entities
         this.player = new Player();
@@ -62,19 +70,12 @@ export class Game {
         this.shark = new Shark(this.player, this.scene);
         this.obstacleManager = new ObstacleManager(this.scene, this.player);
         this.coinManager = new CoinManager(this.scene, this.player);
+        this.cutsceneManager = new CutsceneManager(this.player);
 
-        // Postprocessing
+        // Postprocessing - disabled heavy bloom for realistic cartoon style
         this.composer = new EffectComposer(this.renderer);
         const renderPass = new RenderPass(this.scene, this.cameraManager.camera);
         this.composer.addPass(renderPass);
-
-        const bloomEffect = new BloomEffect({
-            intensity: 1.5,
-            luminanceThreshold: 0.2,
-            luminanceSmoothing: 0.9
-        });
-        const effectPass = new EffectPass(this.cameraManager.camera, bloomEffect);
-        this.composer.addPass(effectPass);
 
         this.clock = new THREE.Clock();
         
@@ -120,6 +121,7 @@ export class Game {
             this.shark.update(delta);
             this.obstacleManager.update(delta);
             this.coinManager.update(delta);
+            this.cutsceneManager.update(Math.abs(this.player.mesh.position.z));
             this.updateHUD();
 
             if (this.shark.hasCaughtPlayer()) {

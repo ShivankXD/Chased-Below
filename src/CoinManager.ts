@@ -4,7 +4,7 @@ import { Player } from './Player';
 export class CoinManager {
     private scene: THREE.Scene;
     private player: Player;
-    private coins: { mesh: THREE.Mesh, lane: number }[] = [];
+    private coins: { mesh: THREE.Mesh }[] = [];
     
     private spawnZ: number = -50;
     
@@ -67,16 +67,17 @@ export class CoinManager {
     }
 
     private spawnCoinPattern(zPos: number) {
-        // Choose a random lane
-        const lane = Math.floor(Math.random() * 3) - 1;
+        // Random X and Y
+        const x = (Math.random() - 0.5) * 20;
+        const y = (Math.random() - 0.5) * 20;
         
         // Spawn a line of 5 coins
         for (let i = 0; i < 5; i++) {
             const mesh = new THREE.Mesh(this.coinGeometry, this.coinMaterial);
-            mesh.position.set(lane * this.player.laneWidth, 1, zPos - (i * 2)); // spaced by 2 units
+            mesh.position.set(x, y, zPos - (i * 2)); // spaced by 2 units
             
             this.scene.add(mesh);
-            this.coins.push({ mesh, lane });
+            this.coins.push({ mesh });
         }
     }
 
