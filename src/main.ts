@@ -1,12 +1,43 @@
 import { Game } from './Game';
+import { AssetLoader } from './AssetLoader';
+import * as THREE from 'three';
+
+export const GameAssets: { [key: string]: THREE.Texture } = {};
 
 let game: Game;
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    const startBtn = document.getElementById('start-btn');
+    if (startBtn) {
+        startBtn.innerText = 'LOADING ASSETS...';
+        startBtn.style.pointerEvents = 'none';
+    }
+
+    try {
+        GameAssets.fish = await AssetLoader.loadSpriteTexture('/assets/fish.png');
+        GameAssets.sharkBack = await AssetLoader.loadSpriteTexture('/assets/shark_back.png');
+        GameAssets.sharkFront = await AssetLoader.loadSpriteTexture('/assets/shark_front.png');
+        GameAssets.mine = await AssetLoader.loadSpriteTexture('/assets/mine.png');
+        GameAssets.barrel = await AssetLoader.loadSpriteTexture('/assets/barrel.png');
+        GameAssets.coin = await AssetLoader.loadSpriteTexture('/assets/coin.png');
+        
+        const tunnelTex = await AssetLoader.loadNormalTexture('/assets/tunnel.png');
+        tunnelTex.wrapS = THREE.RepeatWrapping;
+        tunnelTex.wrapT = THREE.RepeatWrapping;
+        tunnelTex.repeat.set(2, 5); // adjust based on cylinder
+        GameAssets.tunnel = tunnelTex;
+    } catch(e) {
+        console.error("Failed to load assets", e);
+    }
+
+    if (startBtn) {
+        startBtn.innerText = 'PLAY';
+        startBtn.style.pointerEvents = 'auto';
+    }
+
     const canvas = document.getElementById('webgl-canvas') as HTMLCanvasElement;
     game = new Game(canvas);
 
-    const startBtn = document.getElementById('start-btn');
     const restartBtn = document.getElementById('restart-btn');
     
     startBtn?.addEventListener('click', () => {

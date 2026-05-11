@@ -107,8 +107,13 @@ export class Game {
     }
 
     private updateHUD() {
-        this.distanceVal.innerText = Math.floor(Math.abs(this.player.mesh.position.z)).toString();
-        this.coinsVal.innerText = this.coinManager.coinsCollected.toString();
+        const dist = Math.floor(Math.abs(this.player.mesh.position.z));
+        if (this.distanceVal) this.distanceVal.innerText = dist.toString();
+        
+        const scoreVal = document.getElementById('score-val');
+        if (scoreVal) scoreVal.innerText = (dist * 8).toLocaleString();
+
+        if (this.coinsVal) this.coinsVal.innerText = this.coinManager.coinsCollected.toString();
     }
 
     private animate() {

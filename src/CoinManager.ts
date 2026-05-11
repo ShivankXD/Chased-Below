@@ -1,33 +1,25 @@
 import * as THREE from 'three';
 import { Player } from './Player';
+import { GameAssets } from './main';
 
 export class CoinManager {
     private scene: THREE.Scene;
     private player: Player;
-    private coins: { mesh: THREE.Mesh }[] = [];
+    private coins: { mesh: THREE.Sprite }[] = [];
     
     private spawnZ: number = -50;
     
     public coinsCollected: number = 0;
 
-    // Shared geometry and material for performance
-    private coinGeometry: THREE.CylinderGeometry;
-    private coinMaterial: THREE.MeshStandardMaterial;
+    private coinMaterial: THREE.SpriteMaterial;
 
     constructor(scene: THREE.Scene, player: Player) {
         this.scene = scene;
         this.player = player;
 
-        // Thin cylinder (coin)
-        this.coinGeometry = new THREE.CylinderGeometry(0.5, 0.5, 0.1, 16);
-        this.coinGeometry.rotateX(Math.PI / 2); // Stand upright
-
-        this.coinMaterial = new THREE.MeshStandardMaterial({
-            color: 0xffd700,
-            emissive: 0xaa8800,
-            emissiveIntensity: 0.5,
-            metalness: 1,
-            roughness: 0.2
+        this.coinMaterial = new THREE.SpriteMaterial({
+            map: GameAssets.coin,
+            color: 0xffffff
         });
     }
 
@@ -42,8 +34,8 @@ export class CoinManager {
         for (let i = this.coins.length - 1; i >= 0; i--) {
             const coin = this.coins[i];
             
-            // Rotate coin
-            coin.mesh.rotation.y += delta * 2;
+            // Simple bobbing instead of 3D rotation for sprite
+            coin.mesh.position.y += Math.sin(Date.now() * 0.01 + coin.mesh.position.z) * 0.05;
 
             // Collision check
             const dz = Math.abs(coin.mesh.position.z - this.player.mesh.position.z);
@@ -73,8 +65,9 @@ export class CoinManager {
         
         // Spawn a line of 5 coins
         for (let i = 0; i < 5; i++) {
-            const mesh = new THREE.Mesh(this.coinGeometry, this.coinMaterial);
-            mesh.position.set(x, y, zPos - (i * 2)); // spaced by 2 units
+            const mesh = new THREE.Sprite(this.coinMaterial);
+            mesh.scale.set(2, 2, 1);
+            mesh.position.set(x, y, zPos - (i * 3)); // spaced by 3 units
             
             this.scene.add(mesh);
             this.coins.push({ mesh });

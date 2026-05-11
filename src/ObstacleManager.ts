@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { Player } from './Player';
+import { GameAssets } from './main';
 
 export class ObstacleManager {
     private scene: THREE.Scene;
@@ -56,19 +57,18 @@ export class ObstacleManager {
         const x = (Math.random() - 0.5) * 20;
         const y = (Math.random() - 0.5) * 20;
         
-        // Crate or broken pipe obstacle
-        const geometry = new THREE.BoxGeometry(2, 2, 2);
-        const material = new THREE.MeshStandardMaterial({ 
-            color: 0xff5500,
-            roughness: 0.9,
-            metalness: 0.1
+        // Randomly pick mine or barrel
+        const isMine = Math.random() > 0.5;
+        const tex = isMine ? GameAssets.mine : GameAssets.barrel;
+
+        const material = new THREE.SpriteMaterial({ 
+            map: tex,
+            color: 0xffffff
         });
         
-        const mesh = new THREE.Mesh(geometry, material);
+        const mesh = new THREE.Sprite(material);
+        mesh.scale.set(4, 4, 1);
         mesh.position.set(x, y, z);
-        
-        // Random rotation
-        mesh.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, 0);
         
         this.scene.add(mesh);
         this.obstacles.push({ mesh });

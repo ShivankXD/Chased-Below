@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { GameAssets } from './main';
 
 export enum SegmentType {
     OPEN_WATER,
@@ -11,7 +12,7 @@ export class Environment {
     public segments: { mesh: THREE.Group, type: SegmentType }[] = [];
     private segmentLength: number = 100;
     private segmentCount: number = 6;
-    private pipeRadius: number = 15;
+    private pipeRadius: number = 25; // Larger pipe for grand scale
     private particles: THREE.Points;
     private causticLight: THREE.PointLight;
     
@@ -24,7 +25,8 @@ export class Environment {
         this.scene = scene;
 
         this.pipeMaterial = new THREE.MeshStandardMaterial({
-            color: 0x888888, // concrete grey
+            map: GameAssets.tunnel,
+            color: 0xaaaaaa, 
             roughness: 0.9,
             metalness: 0.1,
             side: THREE.BackSide,

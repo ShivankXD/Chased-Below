@@ -127,14 +127,123 @@ body, html {
   top: 0;
   left: 0;
   width: 100%;
-  padding: 2rem;
+  height: 100%;
   pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 2rem;
+  box-sizing: border-box;
 }
 
 .hud-top {
   display: flex;
   justify-content: space-between;
+  align-items: flex-start;
+  text-shadow: 0 4px 6px rgba(0,0,0,0.8);
+}
+
+.hud-left {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pause-btn {
+  background: #004488;
+  border: 3px solid #fff;
+  color: white;
+  font-weight: 900;
+  font-size: 2rem;
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+  display: inline-block;
+  cursor: pointer;
+  pointer-events: auto;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+}
+
+.score-container {
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.multiplier {
+  color: #aaff00;
+  font-size: 2.5rem;
+  -webkit-text-stroke: 1px #335500;
+}
+
+.coin-container {
   font-size: 1.5rem;
-  font-weight: 700;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+  color: white;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.hud-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+}
+
+#distance {
+  font-size: 2.5rem;
+  font-weight: 900;
+  background: rgba(0,0,0,0.5);
+  padding: 0.5rem 1.5rem;
+  border-radius: 50px;
+}
+
+.best-score {
+  font-size: 1.2rem;
+  color: #ffcc00;
+  font-weight: bold;
+}
+
+.hud-bottom {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  padding-bottom: 1rem;
+}
+
+.ability-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 4px solid #fff;
+  background: rgba(0, 50, 100, 0.8);
+  position: relative;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+}
+
+.ability-icon.shield { border-color: #00ffff; }
+.ability-icon.speed { border-color: #00ff00; }
+.ability-icon.magnet { border-color: #aa00ff; }
+.ability-icon.freeze { border-color: #00aaff; }
+.ability-icon.rocket { border-color: #ffaa00; }
+
+.badge {
+  position: absolute;
+  bottom: -5px;
+  right: -5px;
+  background: #fff;
+  color: #000;
+  font-weight: 900;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  border: 2px solid #000;
 }

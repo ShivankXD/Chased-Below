@@ -96,16 +96,23 @@ export class Shark {
         this.mesh.position.x += (this.player.mesh.position.x - this.mesh.position.x) * delta * 2;
         this.mesh.position.y = this.player.mesh.position.y;
 
-        // Jaw chomp animation / bobbing
-        this.sharkBody.position.y = Math.sin(Date.now() * 0.01) * 0.5;
+        // Bobbing
+        this.sharkSprite.position.y = Math.sin(Date.now() * 0.01) * 0.5;
+        
+        // Random Jumpscare chance
+        if (Math.random() < 0.0005 && this.currentDistance > 50) {
+            this.triggerJumpscare();
+        }
     }
 
     public hasCaughtPlayer(): boolean {
-        return this.currentDistance <= this.catchDistance;
+        return !this.isJumpscareActive && this.currentDistance <= this.catchDistance;
     }
 
     public reset() {
         this.currentDistance = 40;
+        this.isJumpscareActive = false;
+        if (this.sharkSprite) this.sharkSprite.material.map = GameAssets.sharkBack;
         this.mesh.position.set(0, 0, 40);
     }
 }
